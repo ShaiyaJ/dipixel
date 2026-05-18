@@ -71,9 +71,13 @@ DIPIXEL_DEF void dp_draw_buffer(        // Draws a buffer to a certain position
     int col                             /* Column in the terminal to draw to */
 );
 
-DIPIXEL_DEF void dp_draw_buffer_q(      // Draws a buffer at current cursor position - includes optimisations for this common case
+DIPIXEL_DEF void dp_draw_buffer_quick(  // Draws a buffer at current cursor position - includes optimisations for this common case
     Buffer* buffer                      /* Input buffer to draw to the terminal */
 ); // NOTE: This function is primarily for people who want to draw at 0,0
+
+DIPIXEL_DEF void dp_draw_buffer_single( // Draws a buffer at the current cursor position as a single line - the fastest way to draw a buffer
+    Buffer* buffer                      /* Input buffer to draw to the terminal */
+);
 
 DIPIXEL_DEF void dp_set_pixel(
     Buffer* buffer,                     /* Input buffer to draw to */
@@ -157,7 +161,7 @@ DIPIXEL_DEF void dp_draw_buffer(Buffer* buffer, int row, int col) {
     */
 }
 
-DIPIXEL_DEF void dp_draw_buffer_q(Buffer* buffer) {
+DIPIXEL_DEF void dp_draw_buffer_quick(Buffer* buffer) {
     // Iterate through rows and draw each line
     for (int row = 0; row < buffer->cell_height; row++) {
         write(STDOUT_FILENO, 
@@ -174,6 +178,10 @@ DIPIXEL_DEF void dp_draw_buffer_q(Buffer* buffer) {
 
     // Force output to show to screen immediately
     fflush(stdout);
+}
+
+DIPIXEL_DEF void dp_draw_buffer_single(Buffer* buffer) {
+    write(STDOUT_FILENO, buffer->data, buffer->cell_width * buffer->cell_height * sizeof(Cell));
 }
 
 DIPIXEL_DEF void dp_set_pixel(Buffer* buffer, int x, int y, unsigned char r, unsigned char g, unsigned char b){
