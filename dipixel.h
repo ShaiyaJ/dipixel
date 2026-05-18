@@ -139,26 +139,23 @@ DIPIXEL_DEF void dp_free_buffer(Buffer* buffer) {
 
 // Drawing commands
 DIPIXEL_DEF void dp_draw_buffer(Buffer* buffer, int row, int col) {
-    /*
     // Iterate through rows and draw each line
-    for (int row = 0; row < buffer->cell_height; row++) {
-        // Align for write
-        for (int i = 0; i < col; i++)
-            putc(' ', stdout);
+    for (int r = 0; r < buffer->cell_height; r++) {
+        // Align and set styles for this iteration
+        printf("\033[%d;%dH", r+row, col);
+
+        // Draw line
         write(STDOUT_FILENO, 
-              buffer->data + (buffer->cell_width * row), 
+              buffer->data + (buffer->cell_width * r), 
               buffer->cell_width * sizeof(Cell)
         );
 
-        // Align and set styles for next iteration
-        putc('\n', stdout);
+        // Reset styles (technically optional) // TODO: look into making this a configuration
         fputs("\033[0m", stdout);
     }
 
-
     // Force output to show to screen immediately
     fflush(stdout);
-    */
 }
 
 DIPIXEL_DEF void dp_draw_buffer_quick(Buffer* buffer) {
@@ -170,7 +167,7 @@ DIPIXEL_DEF void dp_draw_buffer_quick(Buffer* buffer) {
         );
 
         // Align for next iteration
-        putc('\n', stdout);
+        fputs("\033[1E", stdout);
     }
 
     // Reset styles (technically optional) // TODO: look into making this a configuration
@@ -182,6 +179,9 @@ DIPIXEL_DEF void dp_draw_buffer_quick(Buffer* buffer) {
 
 DIPIXEL_DEF void dp_draw_buffer_single(Buffer* buffer) {
     write(STDOUT_FILENO, buffer->data, buffer->cell_width * buffer->cell_height * sizeof(Cell));
+
+    // Reset styles (technically optional) // TODO: look into making this a configuration
+    fputs("\033[0m", stdout);
 }
 
 DIPIXEL_DEF void dp_set_pixel(Buffer* buffer, int x, int y, unsigned char r, unsigned char g, unsigned char b){
