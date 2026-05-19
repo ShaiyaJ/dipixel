@@ -67,8 +67,8 @@ DIPIXEL_DEF void dp_free_buffer(        // Frees a created buffer
 // Drawing commands
 DIPIXEL_DEF void dp_draw_buffer(        // Draws a buffer to a certain position 
     Buffer* buffer,                     /* Input buffer to draw to the terminal */
-    int row,                            /* Row in the terminal to draw to */
-    int col                             /* Column in the terminal to draw to */
+    int x,                              /* Column in the terminal to draw to (1-indexed) */
+    int y                               /* Row in the terminal to draw to (1-indexed) */
 );
 
 DIPIXEL_DEF void dp_draw_buffer_quick(  // Draws a buffer at current cursor position - includes optimisations for this common case
@@ -138,15 +138,16 @@ DIPIXEL_DEF void dp_free_buffer(Buffer* buffer) {
 }
 
 // Drawing commands
-DIPIXEL_DEF void dp_draw_buffer(Buffer* buffer, int row, int col) {
+DIPIXEL_DEF void dp_draw_buffer(Buffer* buffer, int x, int y) {
     // Iterate through rows and draw each line
-    for (int r = 0; r < buffer->cell_height; r++) {
+    for (int row = 0; row < buffer->cell_height; row++) {
         // Align and set styles for this iteration
-        printf("\033[%d;%dH", r+row, col);
+        printf("\033[%d;%dH", row+y, x);
+        fflush(stdout);
 
         // Draw line
         write(STDOUT_FILENO, 
-              buffer->data + (buffer->cell_width * r), 
+              buffer->data + (buffer->cell_width * row), 
               buffer->cell_width * sizeof(Cell)
         );
 
@@ -168,6 +169,7 @@ DIPIXEL_DEF void dp_draw_buffer_quick(Buffer* buffer) {
 
         // Align for next iteration
         fputs("\033[1E", stdout);
+        fflush(stdout);
     }
 
     // Reset styles (technically optional) // TODO: look into making this a configuration
