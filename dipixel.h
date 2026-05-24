@@ -88,12 +88,6 @@ DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to 
     unsigned char b                     /* Blue color component */
 );
 
-DIPIXEL_DEF void dp_blit_buffer(        // Blits the pixels from src into dest - can be used to create reusable sprites
-    Buffer* dest,                       /* Destination buffer (e.g. "window") */
-    Buffer* src,                        /* Source buffer (e.g. "sprite") */
-    int x,                              /* Pixel x position in the buffer to draw to - 0-indexed */
-    int y                               /* Pixel y position in the buffer to draw to - 0-indexed */
-);
 
 // =====----- DISEQ libc impl -----===== //
 #ifdef DIPIXEL_IMPLEMENTATION
@@ -101,7 +95,6 @@ DIPIXEL_DEF void dp_blit_buffer(        // Blits the pixels from src into dest -
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
 
 DIPIXEL_DEF Buffer* dp_create_buffer(int width, int height) {
@@ -206,19 +199,6 @@ DIPIXEL_DEF void dp_set_pixel(Buffer* buffer, int x, int y, unsigned char r, uns
     // Set value
     snprintf(buf, DP_COLOR_ATTR_SIZE, "%03d;%03d;%03dm", r, g, b);
 }
-
-
-DIPIXEL_DEF void dp_blit_buffer(Buffer* dest, Buffer* src, int x, int y) {
-    // Iterate through rows and copy each line
-    for (int row = 0; row < src->cell_height; row++) {
-        Cell* src_target  = src->data + (src->cell_width * row);
-        Cell* dest_target = dest->data + (dest->cell_width * (y + row)) + x;
-
-        memcpy(dest_target, src_target, 
-            src->cell_width * sizeof(Cell));
-    }
-}
-
 
 // ------------------------------------- //
 #endif
