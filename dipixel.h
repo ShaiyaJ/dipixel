@@ -79,7 +79,7 @@ DIPIXEL_DEF void dp_draw_buffer_single( // Draws a buffer at the current cursor 
     Buffer* buffer                      /* Input buffer to draw to the terminal */
 );
 
-DIPIXEL_DEF void dp_set_pixel(
+DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to a particular rgb value
     Buffer* buffer,                     /* Input buffer to draw to */
     int x,                              /* Pixel x position in the buffer to draw to - 0-indexed */
     int y,                              /* Pixel y position in the buffer to draw to - 0-indexed */
