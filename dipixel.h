@@ -64,7 +64,7 @@ DIPIXEL_DEF void dp_free_buffer(        // Frees a created buffer
     Buffer* buffer                      /* Pointer to the buffer created with dp_create_buffer */
 );
 
-// Drawing commands
+// Outputting buffers to the terminal
 DIPIXEL_DEF void dp_draw_buffer(        // Draws a buffer to a certain position 
     Buffer* buffer,                     /* Input buffer to draw to the terminal */
     int x,                              /* Column in the terminal to draw to (1-indexed) */
@@ -77,7 +77,7 @@ DIPIXEL_DEF void dp_draw_buffer_quick(  // Draws a buffer at current cursor posi
 
 DIPIXEL_DEF void dp_draw_buffer_single( // Draws a buffer at the current cursor position as a single line - the fastest way to draw a buffer
     Buffer* buffer                      /* Input buffer to draw to the terminal */
-);
+); // NOTE: This function is primarily for people who both want to draw at 0,0 and can set the size of their terminal
 
 DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to a particular rgb value
     Buffer* buffer,                     /* Input buffer to draw to */
@@ -88,12 +88,20 @@ DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to 
     unsigned char b                     /* Blue color component */
 );
 
+DIPIXEL_DEF void dp_blit_buffer(        // Blits the pixels from src into dest - can be used to create reusable sprites
+    Buffer* dest,                       /* Destination buffer (e.g. "window") */
+    Buffer* src,                        /* Source buffer (e.g. "sprite") */
+    int x,                              /* Pixel x position in the buffer to draw to - 0-indexed */
+    int y                               /* Pixel y position in the buffer to draw to - 0-indexed */
+);
+
 // =====----- DISEQ libc impl -----===== //
 #ifdef DIPIXEL_IMPLEMENTATION
 // ------------------------------------- //
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 DIPIXEL_DEF Buffer* dp_create_buffer(int width, int height) {
@@ -187,11 +195,28 @@ DIPIXEL_DEF void dp_draw_buffer_single(Buffer* buffer) {
 }
 
 DIPIXEL_DEF void dp_set_pixel(Buffer* buffer, int x, int y, unsigned char r, unsigned char g, unsigned char b){
-    Cell* target = buffer->data + (buffer->cell_width * (y/2)) + x;
+    // Bounds check
+    if (x < 0 || x >= buffer->pixel_width || y < 0 || y >= buffer->pixel_height)
+        return;
 
-    char* buf = y % 2 ? target->bottom : target->top; 
+    // Calculate the target pixel
+    Cell* target = buffer->data + (buffer->cell_width * (y/2)) + x; // Target cell
+    char* buf = y % 2 ? target->bottom : target->top;               // Target pixel inside that cell
 
+    // Set value
     snprintf(buf, DP_COLOR_ATTR_SIZE, "%03d;%03d;%03dm", r, g, b);
+}
+
+
+DIPIXEL_DEF void dp_blit_buffer(Buffer* dest, Buffer* src, int x, int y) {
+    // Iterate through rows and copy each line
+    for (int row = 0; row < src->cell_height; row++) {
+        Cell* src_target  = src->data + (src->cell_width * row);
+        Cell* dest_target = dest->data + (dest->cell_width * (y + row)) + x;
+
+        memcpy(dest_target, src_target, 
+            src->cell_width * sizeof(Cell));
+    }
 }
 
 

@@ -6,8 +6,13 @@ int main(void) {
 
     // Set the pixel value to white and draw it to the terminal at 0,0
     dp_set_pixel(buf, 1,3, 255,255,255);
-    dp_draw_buffer_quick(buf);
 
+    // If you draw out of bounds, then the function won't write to memory
+    dp_set_pixel(buf, -1,-1, 255,0,0);
+    dp_set_pixel(buf, 4,4, 255,0,0);
+
+
+    dp_draw_buffer(buf, 5, 5);
     dp_free_buffer(buf);
 
     return 0;
