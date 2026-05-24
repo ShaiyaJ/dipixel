@@ -25,16 +25,19 @@
 
 #define DP_BLOCK_CHR_SIZE sizeof(DP_BLOCK_CHR)
 
+// A cell represents a single character in the terminal, comprised of a top pixel, a bottom pixel, and the half block character that distinguishes between them
 typedef struct {
-    char top_header[DP_COLOR_HEADER_SIZE]; 
-    char top[DP_COLOR_ATTR_SIZE];
+    char top_header[DP_COLOR_HEADER_SIZE];      /* ANSI escape sequence start */
+    char top[DP_COLOR_ATTR_SIZE];               /* Colour information (gets written to)  */
 
-    char bottom_header[DP_COLOR_HEADER_SIZE];
-    char bottom[DP_COLOR_ATTR_SIZE];
+    char bottom_header[DP_COLOR_HEADER_SIZE];   /* ANSI escapse sequence start */
+    char bottom[DP_COLOR_ATTR_SIZE];            /* Colour information (gets written to) */
 
-    char block_chr[DP_BLOCK_CHR_SIZE];
+    char block_chr[DP_BLOCK_CHR_SIZE];          /* Half block character copy */
 } Cell;
 
+
+// A buffer represents a collection of cells - a canvas that will be printed to the terminal
 typedef struct {
     int pixel_width;    /* Number of pixels in the x-axis */
     int pixel_height;   /* Number of pixels in the y-axis */
@@ -79,6 +82,7 @@ DIPIXEL_DEF void dp_draw_buffer_single( // Draws a buffer at the current cursor 
     Buffer* buffer                      /* Input buffer to draw to the terminal */
 ); // NOTE: This function is primarily for people who both want to draw at 0,0 and can set the size of their terminal
 
+// Modifying buffer's data
 DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to a particular rgb value
     Buffer* buffer,                     /* Input buffer to draw to */
     int x,                              /* Pixel x position in the buffer to draw to - 0-indexed */
@@ -87,6 +91,8 @@ DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to 
     unsigned char g,                    /* Green color component */
     unsigned char b                     /* Blue color component */
 );
+
+#define dp_set_pixels(buffer, ...)      // Utility macro to call dp_set_pixel multiple times with sets of (x,y, r,g,b) values - will not work if the incorrect amount of args are applied
 
 
 // =====----- DISEQ libc impl -----===== //
@@ -199,6 +205,10 @@ DIPIXEL_DEF void dp_set_pixel(Buffer* buffer, int x, int y, unsigned char r, uns
     // Set value
     snprintf(buf, DP_COLOR_ATTR_SIZE, "%03d;%03d;%03dm", r, g, b);
 }
+
+#undef dp_set_pixels        // Undefine to avoid preprocessor warning
+#define __DP_PROCESS_PIXEL(buffer, x,y, r,g,b, ...) dp_set_pixel(buffer, x,y, r,g,b); __DP_PROCESS_PIXEL(buffer, __VA_ARGS__)  // TODO: static_assert to check if args exist? 
+#define dp_set_pixels(buffer, ...)                  do { __DP_PROCESS_PIXEL(buffer, __VA_ARGS__) } while (0) // TODO:
 
 // ------------------------------------- //
 #endif
