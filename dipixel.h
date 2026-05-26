@@ -92,8 +92,6 @@ DIPIXEL_DEF void dp_set_pixel(          // Sets a pixel at (x,y) in a buffer to 
     unsigned char b                     /* Blue color component */
 );
 
-#define dp_set_pixels(buffer, ...)      // Utility macro to call dp_set_pixel multiple times with sets of (x,y, r,g,b) values - will not work if the incorrect amount of args are applied
-
 
 // =====----- DISEQ libc impl -----===== //
 #ifdef DIPIXEL_IMPLEMENTATION
@@ -205,10 +203,6 @@ DIPIXEL_DEF void dp_set_pixel(Buffer* buffer, int x, int y, unsigned char r, uns
     // Set value
     snprintf(buf, DP_COLOR_ATTR_SIZE, "%03d;%03d;%03dm", r, g, b);
 }
-
-#undef dp_set_pixels        // Undefine to avoid preprocessor warning
-#define __DP_PROCESS_PIXEL(buffer, x,y, r,g,b, ...) dp_set_pixel(buffer, x,y, r,g,b); __DP_PROCESS_PIXEL(buffer, __VA_ARGS__)  // TODO: static_assert to check if args exist? 
-#define dp_set_pixels(buffer, ...)                  do { __DP_PROCESS_PIXEL(buffer, __VA_ARGS__) } while (0) // TODO:
 
 // ------------------------------------- //
 #endif
