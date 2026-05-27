@@ -144,6 +144,10 @@ DIPIXEL_DEF void dp_free_buffer(Buffer* buffer) {
 
 // Drawing commands
 DIPIXEL_DEF void dp_draw_buffer(Buffer* buffer, int x, int y) {
+    // Input validation
+    if (x < 1) x = 1;
+    if (y < 1) y = 1;
+
     // Iterate through rows and draw each line
     for (int row = 0; row < buffer->cell_height; row++) {
         // Align and set styles for this iteration
