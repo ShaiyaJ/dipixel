@@ -9,4 +9,4 @@ Dipixel is an stb-style single header library - that means that the entire libra
 Simply include the header file in your code, and use the functions. If you want the default implementation, do `#define DIPIXEL_IMPLEMENTATION` before the `#include` directive. 
 
 ## Warning
-This library is in an early alpha. The API is bare-bones and subject to change. Future releases will try and maintain backwards compatibility. 
+This library is in an early beta. The API is bare-bones and subject to change. Future releases will try and maintain backwards compatibility. 
