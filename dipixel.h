@@ -76,7 +76,7 @@ DIPIXEL_DEF void dp_draw_buffer(        // Draws a buffer to a certain position
 
 DIPIXEL_DEF void dp_draw_buffer_quick(  // Draws a buffer at current cursor position - includes optimisations for this common case
     Buffer* buffer                      /* Input buffer to draw to the terminal */
-); // NOTE: This function is primarily for people who want to draw at 0,0
+); // NOTE: This function is primarily for people who want to draw at 1,1
 
 DIPIXEL_DEF void dp_draw_buffer_single( // Draws a buffer at the current cursor position as a single line - the fastest way to draw a buffer
     Buffer* buffer                      /* Input buffer to draw to the terminal */
