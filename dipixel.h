@@ -4,8 +4,6 @@
  * unicode half block character. Allows the use of the terminal to create bitmap graphics.
  *
  * DIPIXEL isn't dependent on DISEQ 
- *
- * Licensed under MIT - Shaiya J.
  */
 
 #ifndef H_DIPIXEL
